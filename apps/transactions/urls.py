@@ -6,5 +6,4 @@ urlpatterns = [
     path('', TransactionListCreateView.as_view(), name='transaction-list-create'),
 ]
 
-# transactions 앱의 URLConf (예시)
 urlpatterns = [] 

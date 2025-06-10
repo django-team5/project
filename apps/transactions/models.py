@@ -12,4 +12,3 @@ class Transaction(models.Model):
     description = models.CharField(max_length=255)  # 설명
     created_at = models.DateTimeField(auto_now_add=True)  # 생성일 
 
-# transactions 앱의 모델 정의 (예시) 

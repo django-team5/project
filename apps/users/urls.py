@@ -8,3 +8,4 @@ urlpatterns = [
     path("logout/", LogoutView.as_view()),
     path("token/refresh/", TokenRefreshView.as_view()),
 ]
+
