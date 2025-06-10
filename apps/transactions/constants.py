@@ -1,0 +1,1 @@
+# transactions 앱의 ENUM/상수 정의 (예시) 
