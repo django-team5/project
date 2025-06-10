@@ -5,7 +5,7 @@ from .models import Account
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'name', 'balance', 'created_at']
+        fields = ['id', 'name', 'account_number', 'balance', 'created_at']
 
 # 예시용 Serializer (추후 구현) 
 
