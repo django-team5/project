@@ -46,4 +46,3 @@ class LogoutView(APIView):
 
 
 
-# users 앱의 뷰 정의 (예시)

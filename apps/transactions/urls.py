@@ -1,9 +1,8 @@
 from django.urls import path
-from .views import TransactionListCreateView
+from .views import TransactionCreateView, AccountListCreateView, TransactionListCreateView
 
-# 거래내역 URL 패턴
 urlpatterns = [
-    path('', TransactionListCreateView.as_view(), name='transaction-list-create'),
+    path('accounts/', AccountListCreateView.as_view(), name='account-list-create'),
+    path('transactions/', TransactionListCreateView.as_view(), name='transaction-list-create'),
 ]
 
-urlpatterns = [] 

@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import AccountListCreateView
+from .views import AccountListCreateView, TransactionCreateView
 
-# accounts 앱의 URLConf
 urlpatterns = [
-    path('', AccountListCreateView.as_view(), name='account-list-create'),  # 계좌 목록/생성
-] 
+    path('accounts/', AccountListCreateView.as_view(), name='account-list-create'),
+    path('transactions/', TransactionCreateView.as_view(), name='transaction-create'),
+]
