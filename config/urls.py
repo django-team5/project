@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/notifications/', include('apps.notifications.urls')),
     path('accounts/', include('allauth.urls')),
     path('create-superuser/', create_admin),
+    path('api/analysis/', include('apps.analysis.urls')),
 ]

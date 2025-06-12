@@ -1,1 +1,8 @@
-# analysis 앱의 시리얼라이저 정의 (예시) 
+from rest_framework import serializers
+from .models import Analysis
+
+class AnalysisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Analysis
+        fields = '__all__'
+        read_only_fields = ['user', 'summary', 'result_image_url', 'created_at']
