@@ -132,8 +132,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.venv
+project/.env
+../.venv
 env/
 venv/
 ENV/
@@ -278,4 +278,4 @@ Thumbs.db
 
 # 기타
 *.swp
-.idea/ 
+project/.idea/
