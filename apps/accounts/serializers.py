@@ -12,6 +12,3 @@ class AccountSerializer(serializers.ModelSerializer):
     def get_owner(self, obj):
         return obj.owner.email  # 소유자 이메일 반환
 
-# 예시용 Serializer (추후 구현) 
-
-# accounts 앱의 시리얼라이저 정의 (예시) 

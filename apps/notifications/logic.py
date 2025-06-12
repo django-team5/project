@@ -1,6 +1,3 @@
-# notifications/logic.py
-# 알림 관련 비즈니스 로직 함수 모음
-
 from .models import Notification
 from django.contrib.auth import get_user_model
 
