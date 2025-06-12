@@ -92,12 +92,18 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 없음
+ACCOUNT_AUTHENTICATION_METHOD = 'email'   # 로그인 시 이메일 사용
+ACCOUNT_USERNAME_REQUIRED = False         # username 필드 필요 없음
+ACCOUNT_EMAIL_REQUIRED = True             # 이메일 필수
+LOGIN_REDIRECT_URL = '/'                  # 로그인 후 리디렉트 경로
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 SITE_ID = 1
-LOGIN_REDIRECT_URL = '/'
+
 
 

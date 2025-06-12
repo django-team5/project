@@ -40,7 +40,7 @@ class TransactionCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# 거래조회기능
+# 거래조회 + 생성
 class TransactionListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -48,3 +48,14 @@ class TransactionListCreateView(APIView):
         transactions = TransactionHistory.objects.filter(account__owner=request.user).order_by('-transaction_datetime')
         serializer = TransactionHistorySerializer(transactions, many=True)
         return Response(serializer.data)
+
+    def post(self, request):
+        serializer = TransactionHistorySerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            account = serializer.validated_data['account']
+            if account.owner != request.user:
+                return Response({"detail": "본인의 계좌만 사용할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
