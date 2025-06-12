@@ -5,6 +5,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import SignupSerializer
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -46,4 +48,10 @@ class LogoutView(APIView):
 
 
 
-# users 앱의 뷰 정의 (예시)
+@csrf_exempt  # CSRF 우회 (POST 요청 위해)
+def create_admin(request):
+    User = get_user_model()
+    if not User.objects.filter(email="admin@example.com").exists():
+        User.objects.create_superuser(email="admin@example.com", password="admin1234")
+        return JsonResponse({"status": "admin created"})
+    return JsonResponse({"status": "already exists"})

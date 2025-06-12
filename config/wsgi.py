@@ -1,6 +1,12 @@
 import os
-from django.core.wsgi import get_wsgi_application
+import django
+from django.core.management import call_command
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
 
-application = get_wsgi_application() 
+try:
+    call_command("migrate", interactive=False)
+    call_command("collectstatic", "--noinput")
+except Exception as e:
+    print(f"[MIGRATE ERROR] {e}")
