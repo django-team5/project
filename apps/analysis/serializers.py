@@ -6,3 +6,5 @@ class AnalysisSerializer(serializers.ModelSerializer):
         model = Analysis
         fields = '__all__'
         read_only_fields = ['user', 'summary', 'result_image_url', 'created_at']
+        fields = '__all__'
+

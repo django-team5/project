@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-
-from .serializers import AnalysisSerializer
 from .logic import Analyzer
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from .models import Analysis
+from .serializers import AnalysisSerializer
 
 
 class AnalysisView(APIView):
@@ -32,3 +33,16 @@ class AnalysisView(APIView):
         analysis = analyzer.run()
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class AnalysisListView(ListAPIView):
+    serializer_class = AnalysisSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        period_type = self.request.query_params.get('period_type')  # 쿼리 파라미터 사용
+
+        queryset = Analysis.objects.filter(user=user).order_by('-created_at')
+        if period_type:
+            queryset = queryset.filter(period_type=period_type)
+        return queryset
