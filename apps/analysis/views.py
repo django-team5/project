@@ -1,16 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .logic import Analyzer
+from rest_framework import status, permissions
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
 from .models import Analysis
 from .serializers import AnalysisSerializer
+from .logic import Analyzer
 
 
 class AnalysisView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(request_body=AnalysisSerializer)
     def post(self, request):
         user = request.user
         data = request.data
@@ -34,13 +36,14 @@ class AnalysisView(APIView):
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 class AnalysisListView(ListAPIView):
     serializer_class = AnalysisSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        period_type = self.request.query_params.get('period_type')  # 쿼리 파라미터 사용
+        period_type = self.request.query_params.get('period_type')
 
         queryset = Analysis.objects.filter(user=user).order_by('-created_at')
         if period_type:

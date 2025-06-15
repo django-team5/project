@@ -4,6 +4,7 @@ from apps.users.views import create_admin
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+from django.views.generic import TemplateView
 
 
 schema_view = get_schema_view(
@@ -32,4 +33,13 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/test/', include('apps.test.urls')),
+
+    # 실제 기능 페이지들
+    path('app/accounts/', TemplateView.as_view(template_name='accounts/account_list.html'), name='account_list'),
+    path('app/notifications/', TemplateView.as_view(template_name='notifications/notification_list.html'), name='notification_list'),
+    path('app/transactions/', TemplateView.as_view(template_name='transaction_list.html'), name='transaction_list'),
+    path('app/analysis/', TemplateView.as_view(template_name='analysis_list.html'), name='analysis_list'),
+
+    path('create-superuser/', create_admin),
+    path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
