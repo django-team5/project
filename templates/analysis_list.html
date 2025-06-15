@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}분석 도구 - Budget Ledger{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+        <h1 class="text-2xl font-bold text-white mb-6">분석 도구</h1>
+        
+        <!-- 분석 옵션 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- 기간 선택 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-white mb-3">기간 선택</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">시작일</label>
+                        <input type="date" id="start-date" 
+                               class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">종료일</label>
+                        <input type="date" id="end-date"
+                               class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 계좌 선택 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-white mb-3">계좌 선택</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">계좌</label>
+                        <select id="account-select" multiple
+                                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">분석 유형</label>
+                        <select id="analysis-type"
+                                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                            <option value="daily">일별 분석</option>
+                            <option value="monthly">월별 분석</option>
+                            <option value="category">카테고리별 분석</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 분석 실행 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-white mb-3">분석 실행</h3>
+                <div class="space-y-3">
+                    <button onclick="runAnalysis()"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg
+                                   transition-all duration-200">
+                        분석 실행
+                    </button>
+                    <button onclick="exportAnalysis()"
+                            class="w-full bg-slate-600 hover:bg-slate-700 text-white font-semibold py-3 px-4 rounded-lg
+                                   transition-all duration-200">
+                        결과 내보내기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 분석 결과 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 차트 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-white mb-3">차트</h3>
+                <div id="chart-container" class="h-96">
+                    <canvas id="analysis-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- 통계 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-white mb-3">통계</h3>
+                <div id="statistics" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-800/50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-slate-400 mb-1">총 수입</h4>
+                            <p class="text-2xl font-bold text-green-400" id="total-income">0원</p>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-slate-400 mb-1">총 지출</h4>
+                            <p class="text-2xl font-bold text-red-400" id="total-expense">0원</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-slate-400 mb-1">평균 일일 지출</h4>
+                        <p class="text-2xl font-bold text-slate-300" id="avg-daily-expense">0원</p>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-slate-400 mb-1">최대 지출 카테고리</h4>
+                        <p class="text-2xl font-bold text-slate-300" id="max-category">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let chart = null;
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    loadAccounts();
+    setupDateInputs();
+    setupEventListeners();
+});
+
+// 계좌 목록 로드
+async function loadAccounts() {
+    try {
+        const response = await fetch('/api/accounts/');
+        const accounts = await response.json();
+
+        const select = document.getElementById('account-select');
+        accounts.forEach(account => {
+            const option = new Option(account.name, account.id);
+            select.add(option);
+        });
+    } catch (error) {
+        console.error('계좌 목록 로드 실패:', error);
+    }
+}
+
+// 날짜 입력 초기화
+function setupDateInputs() {
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setMonth(today.getMonth() - 1);
+
+    document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+    document.getElementById('end-date').value = today.toISOString().split('T')[0];
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    document.getElementById('analysis-type').addEventListener('change', function() {
+        if (chart) {
+            chart.destroy();
+            chart = null;
+        }
+    });
+}
+
+// 분석 실행
+async function runAnalysis() {
+    try {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const accounts = Array.from(document.getElementById('account-select').selectedOptions)
+            .map(option => option.value);
+        const analysisType = document.getElementById('analysis-type').value;
+
+        const response = await fetch('/api/analysis/run/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                start_date: startDate,
+                end_date: endDate,
+                accounts: accounts,
+                analysis_type: analysisType
+            })
+        });
+
+        const data = await response.json();
+        updateChart(data);
+        updateStatistics(data);
+    } catch (error) {
+        console.error('분석 실행 실패:', error);
+        alert('분석 실행에 실패했습니다.');
+    }
+}
+
+// 차트 업데이트
+function updateChart(data) {
+    const ctx = document.getElementById('analysis-chart').getContext('2d');
+    
+    if (chart) {
+        chart.destroy();
+    }
+
+    const analysisType = document.getElementById('analysis-type').value;
+    let labels, datasets;
+
+    switch (analysisType) {
+        case 'daily':
+            labels = data.dates;
+            datasets = [
+                {
+                    label: '수입',
+                    data: data.income,
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: true
+                },
+                {
+                    label: '지출',
+                    data: data.expense,
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true
+                }
+            ];
+            break;
+        case 'monthly':
+            labels = data.months;
+            datasets = [
+                {
+                    label: '수입',
+                    data: data.income,
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: true
+                },
+                {
+                    label: '지출',
+                    data: data.expense,
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true
+                }
+            ];
+            break;
+        case 'category':
+            labels = data.categories;
+            datasets = [{
+                label: '지출',
+                data: data.amounts,
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(234, 179, 8, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(168, 85, 247, 0.8)'
+                ]
+            }];
+            break;
+    }
+
+    chart = new Chart(ctx, {
+        type: analysisType === 'category' ? 'pie' : 'line',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: 'rgb(148, 163, 184)'
+                    }
+                }
+            },
+            scales: analysisType !== 'category' ? {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgb(148, 163, 184)',
+                        callback: function(value) {
+                            return value.toLocaleString() + '원';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgb(148, 163, 184)'
+                    }
+                }
+            } : {}
+        }
+    });
+}
+
+// 통계 업데이트
+function updateStatistics(data) {
+    document.getElementById('total-income').textContent = 
+        data.total_income.toLocaleString() + '원';
+    document.getElementById('total-expense').textContent = 
+        data.total_expense.toLocaleString() + '원';
+    document.getElementById('avg-daily-expense').textContent = 
+        data.avg_daily_expense.toLocaleString() + '원';
+    document.getElementById('max-category').textContent = 
+        data.max_category || '-';
+}
+
+// 결과 내보내기
+function exportAnalysis() {
+    // TODO: 분석 결과 내보내기 기능 구현
+    alert('내보내기 기능은 아직 구현되지 않았습니다.');
+}
+
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

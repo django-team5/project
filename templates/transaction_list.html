@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}거래 관리 - Budget Ledger{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+        <h1 class="text-2xl font-bold text-white mb-6">거래 관리</h1>
+        
+        <!-- 필터 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">계좌</label>
+                <select id="account-filter" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="">전체</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">유형</label>
+                <select id="type-filter" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="">전체</option>
+                    <option value="입금">수입</option>
+                    <option value="출금">지출</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">카테고리</label>
+                <select id="category-filter" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="">전체</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">기간</label>
+                <select id="period-filter" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="all">전체</option>
+                    <option value="today">오늘</option>
+                    <option value="week">이번 주</option>
+                    <option value="month">이번 달</option>
+                    <option value="year">올해</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 거래 목록 -->
+        <div class="bg-slate-700/50 border border-slate-600 rounded-lg overflow-hidden mb-6">
+            <div class="flex justify-between items-center p-4 border-b border-slate-600">
+                <h2 class="text-lg font-semibold text-white">거래 목록</h2>
+                <button onclick="showAddTransactionModal()"
+                        class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg
+                               transition-all duration-200">
+                    거래 추가
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-600">
+                    <thead class="bg-slate-800/50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">날짜</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">계좌</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">유형</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">카테고리</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">금액</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">설명</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-list" class="divide-y divide-slate-600">
+                        <!-- 거래 목록이 여기에 동적으로 추가됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- 페이지네이션 -->
+            <div class="flex justify-between items-center p-4 border-t border-slate-600">
+                <div class="text-sm text-slate-400">
+                    총 <span id="total-count">0</span>건
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="prev-page" class="px-3 py-1 bg-slate-700 text-white rounded-lg disabled:opacity-50">이전</button>
+                    <span id="page-info" class="text-sm text-slate-400">1 / 1</span>
+                    <button id="next-page" class="px-3 py-1 bg-slate-700 text-white rounded-lg disabled:opacity-50">다음</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 거래 추가 모달 -->
+<div id="add-transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+    <div class="bg-slate-800 rounded-xl p-6 w-full max-w-md">
+        <h2 class="text-xl font-bold text-white mb-4">거래 추가</h2>
+        <form id="add-transaction-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">입출금 유형</label>
+                <select name="inout_type" required class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="">입출금 유형 선택</option>
+                    <option value="입금">입금</option>
+                    <option value="출금">출금</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">계좌</label>
+                <select name="account" required class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="">계좌 선택</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">카테고리</label>
+                <select name="category" required class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                    <option value="">카테고리 선택</option>
+                    <option value="ATM">ATM 거래</option>
+                    <option value="TRANSFER">계좌이체</option>
+                    <option value="AUTOMATIC_TRANSFER">자동이체</option>
+                    <option value="CARD">카드결제</option>
+                    <option value="INTEREST">이자</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">금액</label>
+                <input type="number" name="amount" required min="0" step="1"
+                       class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">날짜</label>
+                <input type="date" name="date" required
+                       class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">설명</label>
+                <input type="text" name="description"
+                       class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="hideAddTransactionModal()"
+                        class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
+                    취소
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    추가
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPage = 1;
+const pageSize = 10;
+
+// 페이지 로드 시 초기 데이터 로드
+document.addEventListener('DOMContentLoaded', function() {
+    loadTransactions();
+    loadAccounts();
+    loadCategories();
+    setupEventListeners();
+});
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 필터 변경 이벤트
+    document.getElementById('account-filter').addEventListener('change', loadTransactions);
+    document.getElementById('type-filter').addEventListener('change', loadTransactions);
+    document.getElementById('category-filter').addEventListener('change', loadTransactions);
+    document.getElementById('period-filter').addEventListener('change', loadTransactions);
+
+    // 페이지네이션 이벤트
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadTransactions();
+        }
+    });
+    document.getElementById('next-page').addEventListener('click', () => {
+        currentPage++;
+        loadTransactions();
+    });
+
+    // 거래 추가 폼 제출
+    document.getElementById('add-transaction-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        addTransaction();
+    });
+}
+
+// 거래 목록 로드
+async function loadTransactions() {
+    try {
+        const account = document.getElementById('account-filter').value;
+        const type = document.getElementById('type-filter').value;
+        const category = document.getElementById('category-filter').value;
+        const period = document.getElementById('period-filter').value;
+
+        const response = await fetch(`/api/transactions/transactions/?page=${currentPage}&page_size=${pageSize}&account=${account}&inout_type=${type}&transaction_method=${category}&period=${period}`);
+        const data = await response.json();
+
+        const tbody = document.getElementById('transaction-list');
+        tbody.innerHTML = '';
+
+        data.results.forEach(transaction => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-slate-700/50';
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                    ${new Date(transaction.transaction_datetime).toLocaleDateString()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                    ${transaction.account_name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium
+                        ${transaction.inout_type === '입금' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
+                        ${transaction.inout_type}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                    ${transaction.transaction_method}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium
+                    ${transaction.inout_type === '입금' ? 'text-green-400' : 'text-red-400'}">
+                    ${transaction.inout_type === '입금' ? '+' : '-'}${transaction.amount.toLocaleString()}원
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-300">
+                    ${transaction.description || '-'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button onclick="editTransaction(${transaction.id})"
+                            class="text-blue-400 hover:text-blue-300 mr-2">
+                        수정
+                    </button>
+                    <button onclick="deleteTransaction(${transaction.id})"
+                            class="text-red-400 hover:text-red-300">
+                        삭제
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // 페이지네이션 업데이트
+        document.getElementById('total-count').textContent = data.count;
+        document.getElementById('page-info').textContent = `${currentPage} / ${Math.ceil(data.count / pageSize)}`;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage >= Math.ceil(data.count / pageSize);
+
+    } catch (error) {
+        console.error('거래 목록 로드 실패:', error);
+        alert('거래 목록을 불러오는데 실패했습니다.');
+    }
+}
+
+// 계좌 목록 로드
+async function loadAccounts() {
+    try {
+        const response = await fetch('/api/transactions/accounts/');
+        const accounts = await response.json();
+        
+        const accountFilter = document.getElementById('account-filter');
+        const accountSelect = document.querySelector('select[name="account"]');
+        
+        accounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account.id;
+            option.textContent = `${account.name} (${account.account_number})`;
+            accountFilter.appendChild(option.cloneNode(true));
+            accountSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('계좌 목록 로드 실패:', error);
+    }
+}
+
+// 카테고리 목록 로드
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/transactions/categories/');
+        const categories = await response.json();
+        
+        const categoryFilter = document.getElementById('category-filter');
+        const categorySelect = document.querySelector('select[name="category"]');
+        
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            categoryFilter.appendChild(option.cloneNode(true));
+            categorySelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('카테고리 로드 실패:', error);
+    }
+}
+
+// 거래 추가
+async function addTransaction() {
+    try {
+        const form = document.getElementById('add-transaction-form');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        
+        // 필드명 변경
+        data.transaction_method = data.category;
+        data.transaction_datetime = data.date;
+        delete data.category;
+        delete data.date;
+
+        const response = await fetch('/api/transactions/transactions/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            hideAddTransactionModal();
+            loadTransactions();
+            alert('거래가 추가되었습니다.');
+        } else {
+            const error = await response.json();
+            alert(error.detail || '거래 추가에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('거래 추가 실패:', error);
+        alert('거래 추가에 실패했습니다.');
+    }
+}
+
+// 거래 수정
+async function editTransaction(id) {
+    try {
+        const response = await fetch(`/api/transactions/transactions/${id}/`);
+        const transaction = await response.json();
+        // TODO: 수정 모달 구현
+        alert('수정 기능은 아직 구현되지 않았습니다.');
+    } catch (error) {
+        console.error('거래 수정 실패:', error);
+        alert('거래 수정에 실패했습니다.');
+    }
+}
+
+// 거래 삭제
+async function deleteTransaction(id) {
+    if (!confirm('정말로 이 거래를 삭제하시겠습니까?')) return;
+
+    try {
+        const response = await fetch(`/api/transactions/transactions/${id}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (response.ok) {
+            loadTransactions();
+        } else {
+            alert('거래 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('거래 삭제 실패:', error);
+        alert('거래 삭제에 실패했습니다.');
+    }
+}
+
+// 모달 표시/숨김
+function showAddTransactionModal() {
+    document.getElementById('add-transaction-modal').classList.remove('hidden');
+}
+
+function hideAddTransactionModal() {
+    document.getElementById('add-transaction-modal').classList.add('hidden');
+}
+
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 
