@@ -20,3 +20,10 @@ class SignupSerializer(serializers.ModelSerializer):
             phone_number=validated_data.get('phone_number')
         )
         return user
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()

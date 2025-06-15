@@ -3,17 +3,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .serializers import SignupSerializer
+from .serializers import SignupSerializer, LoginSerializer, LogoutSerializer
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
-
+from drf_yasg.utils import swagger_auto_schema  # ⬅️ 추가
 
 User = get_user_model()
 
 # 회원가입
 class SignupView(APIView):
+    @swagger_auto_schema(request_body=SignupSerializer)
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
@@ -23,6 +23,7 @@ class SignupView(APIView):
 
 # 로그인
 class LoginView(APIView):
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         user = authenticate(
             email=request.data.get("email"),
@@ -36,8 +37,9 @@ class LoginView(APIView):
             })
         return Response({"detail": "로그인에 실패하였습니다"}, status=401)
 
-#로그아웃
+# 로그아웃
 class LogoutView(APIView):
+    @swagger_auto_schema(request_body=LogoutSerializer)
     def post(self, request):
         try:
             refresh = RefreshToken(request.data.get("refresh"))
@@ -45,7 +47,6 @@ class LogoutView(APIView):
             return Response({"message": "로그아웃"}, status=205)
         except Exception:
             return Response({"message": "잘못된 토큰"}, status=400)
-
 
 
 @csrf_exempt  # CSRF 우회 (POST 요청 위해)

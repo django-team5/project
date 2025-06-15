@@ -6,6 +6,7 @@ from apps.accounts.models import Account
 from apps.accounts.serializers import AccountSerializer
 from .models import TransactionHistory
 from .serializers import TransactionHistorySerializer
+from drf_yasg.utils import swagger_auto_schema
 
 #계좌목록, 조회 생성
 class AccountListCreateView(APIView):
@@ -25,10 +26,21 @@ class AccountListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(request_body=AccountSerializer)
+    def post(self, request):
+        data = request.data.copy()
+        data['owner'] = request.user.id
+        serializer = AccountSerializer(data=data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(owner=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 #입출금 생성
 class TransactionCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(request_body=TransactionHistorySerializer)
     def post(self, request):
         serializer = TransactionHistorySerializer(data=request.data, context={'request': request})
         if serializer.is_valid():

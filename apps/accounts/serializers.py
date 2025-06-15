@@ -11,4 +11,3 @@ class AccountSerializer(serializers.ModelSerializer):
 
     def get_owner(self, obj):
         return obj.owner.email  # 소유자 이메일 반환
-
