@@ -15,6 +15,8 @@ urlpatterns = [
     # 실제 기능 페이지들
     path('app/accounts/', TemplateView.as_view(template_name='accounts/account_list.html'), name='account_list'),
     path('app/notifications/', TemplateView.as_view(template_name='notifications/notification_list.html'), name='notification_list'),
+    path('app/transactions/', TemplateView.as_view(template_name='transaction_list.html'), name='transaction_list'),
+    path('app/analysis/', TemplateView.as_view(template_name='analysis_list.html'), name='analysis_list'),
     
     path('create-superuser/', create_admin),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),

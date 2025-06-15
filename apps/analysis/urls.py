@@ -1,10 +1,8 @@
 from django.urls import path
-from .views import AnalysisView
+from .views import AnalysisView, AnalysisListView
 
-# 분석 URL 패턴
 urlpatterns = [
     path('', AnalysisView.as_view(), name='analysis'),
-] 
-
-# analysis 앱의 URLConf (예시)
-urlpatterns = [] 
+    path('', AnalysisView.as_view(), name='analysis-create'),        # 생성용
+    path('list/', AnalysisListView.as_view(), name='analysis-list'), # 리스트 조회용
+]

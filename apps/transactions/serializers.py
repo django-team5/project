@@ -3,6 +3,9 @@ from .models import TransactionHistory
 
 class TransactionHistorySerializer(serializers.ModelSerializer):
     account_number = serializers.CharField(source='account.account_number', read_only=True)
+    account_name = serializers.CharField(source='account.name', read_only=True)
+    type = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
 
     class Meta:
         model = TransactionHistory
@@ -10,6 +13,7 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
             'id',
             'account',              # 계좌 PK 입력
             'account_number',       # 계좌번호 출력
+            'account_name',         # 계좌명 출력
             'amount',               # 거래 금액
             'balance_after',        # 거래 후 잔액
             'description',          # 거래 설명
@@ -17,8 +21,16 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
             'transaction_method',   # 거래 수단
             'transaction_datetime', # 거래 발생 시각
             'created_at',           # 저장 시각
+            'type',                 # 거래 유형
+            'category_name'         # 거래 카테고리 이름
         ]
         read_only_fields = ['balance_after', 'created_at']
+
+    def get_type(self, obj):
+        return 'income' if obj.inout_type == '입금' else 'expense'
+
+    def get_category_name(self, obj):
+        return obj.transaction_method
 
     def create(self, validated_data):
         account = validated_data['account']

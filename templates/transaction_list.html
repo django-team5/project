@@ -20,8 +20,8 @@
                 <label class="block text-sm font-medium text-slate-300 mb-1">유형</label>
                 <select id="type-filter" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
                     <option value="">전체</option>
-                    <option value="income">수입</option>
-                    <option value="expense">지출</option>
+                    <option value="입금">수입</option>
+                    <option value="출금">지출</option>
                 </select>
             </div>
             <div>
@@ -108,8 +108,6 @@
                 <label class="block text-sm font-medium text-slate-300 mb-1">카테고리</label>
                 <select name="category" required class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
                     <option value="">카테고리 선택</option>
-                    <option value="DEPOSIT">입금</option>
-                    <option value="WITHDRAW">출금</option>
                     <option value="ATM">ATM 거래</option>
                     <option value="TRANSFER">계좌이체</option>
                     <option value="AUTOMATIC_TRANSFER">자동이체</option>
@@ -195,7 +193,7 @@ async function loadTransactions() {
         const category = document.getElementById('category-filter').value;
         const period = document.getElementById('period-filter').value;
 
-        const response = await fetch(`/api/transactions/?page=${currentPage}&page_size=${pageSize}&account=${account}&type=${type}&category=${category}&period=${period}`);
+        const response = await fetch(`/api/transactions/transactions/?page=${currentPage}&page_size=${pageSize}&account=${account}&inout_type=${type}&transaction_method=${category}&period=${period}`);
         const data = await response.json();
 
         const tbody = document.getElementById('transaction-list');
@@ -206,23 +204,23 @@ async function loadTransactions() {
             row.className = 'hover:bg-slate-700/50';
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                    ${new Date(transaction.date).toLocaleDateString()}
+                    ${new Date(transaction.transaction_datetime).toLocaleDateString()}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
                     ${transaction.account_name}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                     <span class="px-2 py-1 rounded-full text-xs font-medium
-                        ${transaction.type === 'income' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
-                        ${transaction.type === 'income' ? '수입' : '지출'}
+                        ${transaction.inout_type === '입금' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
+                        ${transaction.inout_type}
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                    ${transaction.category_name}
+                    ${transaction.transaction_method}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium
-                    ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}">
-                    ${transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}원
+                    ${transaction.inout_type === '입금' ? 'text-green-400' : 'text-red-400'}">
+                    ${transaction.inout_type === '입금' ? '+' : '-'}${transaction.amount.toLocaleString()}원
                 </td>
                 <td class="px-6 py-4 text-sm text-slate-300">
                     ${transaction.description || '-'}
@@ -256,16 +254,18 @@ async function loadTransactions() {
 // 계좌 목록 로드
 async function loadAccounts() {
     try {
-        const response = await fetch('/api/accounts/');
+        const response = await fetch('/api/transactions/accounts/');
         const accounts = await response.json();
-
+        
         const accountFilter = document.getElementById('account-filter');
         const accountSelect = document.querySelector('select[name="account"]');
-
+        
         accounts.forEach(account => {
-            const option = new Option(account.name, account.id);
-            accountFilter.add(option.cloneNode(true));
-            accountSelect.add(option);
+            const option = document.createElement('option');
+            option.value = account.id;
+            option.textContent = `${account.name} (${account.account_number})`;
+            accountFilter.appendChild(option.cloneNode(true));
+            accountSelect.appendChild(option);
         });
     } catch (error) {
         console.error('계좌 목록 로드 실패:', error);
@@ -275,19 +275,21 @@ async function loadAccounts() {
 // 카테고리 목록 로드
 async function loadCategories() {
     try {
-        const response = await fetch('/api/categories/');
+        const response = await fetch('/api/transactions/categories/');
         const categories = await response.json();
-
+        
         const categoryFilter = document.getElementById('category-filter');
         const categorySelect = document.querySelector('select[name="category"]');
-
+        
         categories.forEach(category => {
-            const option = new Option(category.name, category.id);
-            categoryFilter.add(option.cloneNode(true));
-            categorySelect.add(option);
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            categoryFilter.appendChild(option.cloneNode(true));
+            categorySelect.appendChild(option);
         });
     } catch (error) {
-        console.error('카테고리 목록 로드 실패:', error);
+        console.error('카테고리 로드 실패:', error);
     }
 }
 
@@ -297,8 +299,14 @@ async function addTransaction() {
         const form = document.getElementById('add-transaction-form');
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        
+        // 필드명 변경
+        data.transaction_method = data.category;
+        data.transaction_datetime = data.date;
+        delete data.category;
+        delete data.date;
 
-        const response = await fetch('/api/transactions/', {
+        const response = await fetch('/api/transactions/transactions/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -309,8 +317,8 @@ async function addTransaction() {
 
         if (response.ok) {
             hideAddTransactionModal();
-            form.reset();
             loadTransactions();
+            alert('거래가 추가되었습니다.');
         } else {
             const error = await response.json();
             alert(error.detail || '거래 추가에 실패했습니다.');
@@ -323,8 +331,15 @@ async function addTransaction() {
 
 // 거래 수정
 async function editTransaction(id) {
-    // TODO: 수정 모달 구현
-    alert('수정 기능은 아직 구현되지 않았습니다.');
+    try {
+        const response = await fetch(`/api/transactions/transactions/${id}/`);
+        const transaction = await response.json();
+        // TODO: 수정 모달 구현
+        alert('수정 기능은 아직 구현되지 않았습니다.');
+    } catch (error) {
+        console.error('거래 수정 실패:', error);
+        alert('거래 수정에 실패했습니다.');
+    }
 }
 
 // 거래 삭제
@@ -332,7 +347,7 @@ async function deleteTransaction(id) {
     if (!confirm('정말로 이 거래를 삭제하시겠습니까?')) return;
 
     try {
-        const response = await fetch(`/api/transactions/${id}/`, {
+        const response = await fetch(`/api/transactions/transactions/${id}/`, {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')

@@ -21,8 +21,8 @@
     </div>
 
     <!-- 주요 기능들 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <!-- 계정 관리 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <!-- 계좌 관리 카드 -->
         <div class="p-8 bg-slate-700/50 backdrop-blur-sm border border-slate-600 
                     rounded-xl hover:bg-slate-700/70 transition-all duration-300 
                     transform hover:scale-105 hover:border-slate-500">
@@ -37,7 +37,7 @@
                 </div>
                 <div>
                     <h3 class="text-2xl font-semibold text-white tracking-tight mb-1">
-                        계정 관리
+                        계좌 관리
                     </h3>
                     <p class="text-slate-400 font-medium">
                         은행 계좌 및 카드 관리
@@ -62,7 +62,51 @@
                class="w-full inline-block text-center bg-blue-600 hover:bg-blue-700 
                       text-white font-semibold py-3 px-4 rounded-lg text-base
                       transition-all duration-200 btn-primary">
-                계정 관리하기
+                계좌 관리하기
+            </a>
+        </div>
+
+        <!-- 거래 관리 카드 -->
+        <div class="p-8 bg-slate-700/50 backdrop-blur-sm border border-slate-600 
+                    rounded-xl hover:bg-slate-700/70 transition-all duration-300 
+                    transform hover:scale-105 hover:border-slate-500">
+            <div class="flex items-center mb-6">
+                <div class="p-4 bg-yellow-500/20 rounded-xl mr-5">
+                    <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" 
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-white tracking-tight mb-1">
+                        거래 관리
+                    </h3>
+                    <p class="text-slate-400 font-medium">
+                        수입/지출 기록 및 분류
+                    </p>
+                </div>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="p-3 bg-slate-800/50 rounded-lg">
+                    <span class="text-yellow-400 font-medium">
+                        • 거래 내역 추가/수정/삭제
+                    </span>
+                </div>
+                <div class="p-3 bg-slate-800/50 rounded-lg">
+                    <span class="text-yellow-400 font-medium">
+                        • 카테고리별 분류
+                    </span>
+                </div>
+            </div>
+            
+            <a href="{% url 'transaction_list' %}" 
+               class="w-full inline-block text-center bg-yellow-600 hover:bg-yellow-700 
+                      text-white font-semibold py-3 px-4 rounded-lg text-base
+                      transition-all duration-200 btn-primary">
+                거래 관리하기
             </a>
         </div>
 
@@ -109,60 +153,49 @@
                 알림 관리하기
             </a>
         </div>
-    </div>
 
-    <!-- 개발 중인 기능들 -->
-    <div class="mb-10">
-        <h3 class="text-2xl font-semibold text-white mb-6 flex items-center tracking-tight">
-            <svg class="w-6 h-6 mr-3 text-yellow-400" fill="none" stroke="currentColor" 
-                 viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
-                </path>
-            </svg>
-            개발 중인 기능들
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- 거래 관리 -->
-            <div class="p-6 bg-slate-700/30 border border-slate-600 rounded-xl opacity-60">
-                <div class="flex items-center mb-4">
-                    <svg class="w-6 h-6 text-yellow-400 mr-3" fill="none" 
-                         stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                        </path>
-                    </svg>
-                    <h4 class="text-white font-semibold tracking-tight text-lg">거래 관리</h4>
-                </div>
-                <p class="text-slate-400 mb-4 font-medium">
-                    수입/지출 기록 및 분류
-                </p>
-                <span class="inline-block px-3 py-1 bg-yellow-600/20 text-yellow-300 
-                             text-sm rounded-full font-medium">
-                    개발 중
-                </span>
-            </div>
-
-            <!-- 분석 도구 -->
-            <div class="p-6 bg-slate-700/30 border border-slate-600 rounded-xl opacity-60">
-                <div class="flex items-center mb-4">
-                    <svg class="w-6 h-6 text-purple-400 mr-3" fill="none" 
-                         stroke="currentColor" viewBox="0 0 24 24">
+        <!-- 분석 도구 카드 -->
+        <div class="p-8 bg-slate-700/50 backdrop-blur-sm border border-slate-600 
+                    rounded-xl hover:bg-slate-700/70 transition-all duration-300 
+                    transform hover:scale-105 hover:border-slate-500">
+            <div class="flex items-center mb-6">
+                <div class="p-4 bg-purple-500/20 rounded-xl mr-5">
+                    <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" 
+                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                               d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
                         </path>
                     </svg>
-                    <h4 class="text-white font-semibold tracking-tight text-lg">분석 도구</h4>
                 </div>
-                <p class="text-slate-400 mb-4 font-medium">
-                    지출 패턴 및 통계 분석
-                </p>
-                <span class="inline-block px-3 py-1 bg-yellow-600/20 text-yellow-300 
-                             text-sm rounded-full font-medium">
-                    개발 중
-                </span>
+                <div>
+                    <h3 class="text-2xl font-semibold text-white tracking-tight mb-1">
+                        분석 도구
+                    </h3>
+                    <p class="text-slate-400 font-medium">
+                        지출 패턴 및 통계 분석
+                    </p>
+                </div>
             </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="p-3 bg-slate-800/50 rounded-lg">
+                    <span class="text-purple-400 font-medium">
+                        • 지출 패턴 분석
+                    </span>
+                </div>
+                <div class="p-3 bg-slate-800/50 rounded-lg">
+                    <span class="text-purple-400 font-medium">
+                        • 카테고리별 통계
+                    </span>
+                </div>
+            </div>
+            
+            <a href="{% url 'analysis_list' %}" 
+               class="w-full inline-block text-center bg-purple-600 hover:bg-purple-700 
+                      text-white font-semibold py-3 px-4 rounded-lg text-base
+                      transition-all duration-200 btn-primary">
+                분석하기
+            </a>
         </div>
     </div>
 
@@ -230,33 +263,23 @@
     </div>
 
 {% else %}
-    <!-- 로그인하지 않은 사용자 -->
+    <!-- 비로그인 사용자 -->
     <div class="text-center">
-        <h2 class="text-3xl font-bold text-white mb-6 tracking-tight">
-            환영합니다!
+        <h2 class="text-4xl font-bold text-white mb-4">
+            Budget Ledger에 오신 것을 환영합니다
         </h2>
-        
-        <div class="mb-8">
-            <p class="text-slate-300 mb-4 font-medium leading-relaxed text-lg">
-                Budget Ledger에 오신 것을 환영합니다!
-            </p>
-            <p class="text-slate-400 font-medium leading-relaxed">
-                스마트한 가계부 관리로 더 나은 재정 관리를 시작하세요
-            </p>
-        </div>
-        
-        <div class="space-y-4">
+        <p class="text-slate-300 mb-8 text-lg">
+            가계부 관리를 더 쉽고 효율적으로
+        </p>
+        <div class="space-x-4">
             <a href="{% url 'account_login' %}" 
-               class="inline-block bg-blue-600 hover:bg-blue-700 text-white 
-                      font-semibold py-4 px-8 rounded-xl transition-all duration-200 
-                      transform hover:scale-105 shadow-lg text-base btn-primary">
+               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold 
+                      py-3 px-8 rounded-lg text-lg transition-all duration-200">
                 로그인
             </a>
-            <br>
             <a href="{% url 'account_signup' %}" 
-               class="inline-block bg-green-600 hover:bg-green-700 text-white 
-                      font-semibold py-4 px-8 rounded-xl transition-all duration-200 
-                      transform hover:scale-105 shadow-lg text-base btn-primary">
+               class="inline-block bg-slate-700 hover:bg-slate-600 text-white font-semibold 
+                      py-3 px-8 rounded-lg text-lg transition-all duration-200">
                 회원가입
             </a>
         </div>
