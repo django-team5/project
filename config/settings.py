@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'apps.notifications',
     'apps.accounts',
     'apps.users',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
