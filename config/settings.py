@@ -11,7 +11,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,.onrender.com').split(',')
+ALLOWED_HOSTS = ['13.124.147.23', '13.124.147.23:8000', 'localhost', '127.0.0.1']
+print("✅ ALLOWED_HOSTS 적용됨:", ALLOWED_HOSTS)
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -103,3 +105,4 @@ AUTHENTICATION_BACKENDS = [
 SITE_ID = 1
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
